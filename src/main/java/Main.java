@@ -11,11 +11,13 @@ public class Main {
     public static void main(String[] args) {
         String baseUrl="https://mstajbakhsh.ir/";
         ArrayList<String>links=getLinks(baseUrl);
+        System.out.println("Downloading webpages , Please Wait...");
         ArrayList<WebDocument> webDocuments=new ArrayList<>();
         for (String link : links) {
-            if (links.indexOf(link)<22)
+            //if (links.indexOf(link)<22)
             webDocuments.add(DocumentParser.parse(link));
         }
+        System.out.println("Processing webpages , Please Wait...");
         Set<String> distinctClasses=new HashSet<>();
         int record_count=0;
         for (WebDocument webDocument : webDocuments) {
@@ -32,12 +34,8 @@ public class Main {
         ArrayList<String> distinctTokensArrayList=new ArrayList<>();
         distinctTokensArrayList.addAll(distinctTokens);
         distinctTokensArrayList.sort(String::compareToIgnoreCase);
-        for (String s : distinctTokensArrayList) {
-            System.out.println(s);
-        }
 
-        System.out.println();
-        System.out.println("record count is : "+record_count);
+        System.out.println("Constructing Naive-Bayes Table , Please Wait...");
 
         //creating the table and initializing it with 0
         int[][] bayesTable=new int[record_count][distinctTokensArrayList.size()];
@@ -72,7 +70,7 @@ public class Main {
 //        }
 
         HashMap<String, BigDecimal> probabilities=new HashMap<>();
-
+        System.out.println("Calculating the Probabilities , Please Wait...");
         //calculate class probabilities and store them in HashMap -> probabilities.get("class") = p("class")
         for (String distinctClass : distinctClasses) {
             int classCount=0;
@@ -110,23 +108,17 @@ public class Main {
             }
 
         }
-        BigDecimal bigResult=new BigDecimal(1);
-        for (String s : probabilities.keySet()) {
-            bigResult=bigResult.multiply(probabilities.get(s));
-        }
-        System.out.println(bigResult.toPlainString());
 
 
-        System.out.println();
+        System.out.println("Ready to Classify URLs:");
         while (true){
+            System.out.println("Please enter your desired URL :");
             Scanner scanner=new Scanner(System.in);
-            String query=scanner.nextLine();
+            String url=scanner.nextLine();
             Set<String> tokens=new HashSet<>();
-            tokens.addAll(Tokenizer.getTokens(query.toLowerCase()));
+            tokens.addAll(Tokenizer.getTokens(DocumentParser.getTestPageBody(url)));
             System.out.println(getMostProbableClass(probabilities,distinctClasses,distinctTokens,tokens));
-            if (!probabilities.getOrDefault(query,new BigDecimal(-1)).equals(new BigDecimal(-1)))
-            System.out.println(probabilities.get(query).toPlainString());
-            else System.out.println("no such entry");
+
         }
     }
     private static String getMostProbableClass(HashMap<String,BigDecimal> probabilities, Set<String> distinctClasses, Set<String> distinctTokens, Set<String> tokens){
@@ -135,6 +127,8 @@ public class Main {
             if (distinctTokens.contains(token))
                 entryTokens.add(token);
         }
+        if (entryTokens.size()==0)
+            return "Sorry, Not enough important data to classify";
 
         String result="";
         BigDecimal maxProbability=new BigDecimal(0);

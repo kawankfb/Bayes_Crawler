@@ -22,9 +22,12 @@ public class WebCrawlerWithDepth {
         links = new HashSet<>();
     }
 
-    public void getPageLinks(String URL, int depth) {
-        if ((!links.contains(URL) && (depth < MAX_DEPTH)) && URL.startsWith("https://mstajbakhsh.ir/")) {
-            //System.out.println(">> Depth: " + depth + " [" + URL + "]");
+    public HashSet<String> getPageLinks(String URL, int depth){
+        getPageLinks(URL,depth,URL);
+        return getLinks();
+    }
+    private void getPageLinks(String URL, int depth,String baseURL) {
+        if ((!links.contains(URL) && (depth < MAX_DEPTH)) && URL.startsWith(baseURL)) {
             try {
                 links.add(URL);
 
@@ -33,33 +36,11 @@ public class WebCrawlerWithDepth {
 
                 depth++;
                 for (Element page : linksOnPage) {
-                    getPageLinks(page.attr("abs:href"), depth);
+                    getPageLinks(page.attr("abs:href"), depth,baseURL);
                 }
             } catch (IOException e) {
                 //System.err.println("For '" + URL + "': " + e.getMessage());
             }
         }
-    }
-
-    public static void main(String[] args) {
-        WebCrawlerWithDepth crawler= new WebCrawlerWithDepth();
-        crawler.getPageLinks("https://mstajbakhsh.ir/", 0);
-        ArrayList<String> links=new ArrayList<>();
-        links.addAll(crawler.getLinks());
-
-        System.out.println(links);
-
-        /*
-        try {
-            PrintWriter pw=new PrintWriter("links.txt");
-            for (String link : crawler.getLinks()) {
-                pw.println(link);
-            }
-            pw.flush();
-            pw.close();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        */
     }
 }

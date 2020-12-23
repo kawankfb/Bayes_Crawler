@@ -91,4 +91,36 @@ public class DocumentParser {
         return classes;
     }
 
+    public static String getTestPageBody(String url){
+        String str=DownloadWebPage(url);
+        Document body = Jsoup.parse(str);
+        ArrayList<String> classes=new ArrayList<>();
+        for (int i = 0; i <body.select("p").size() ; i++) {
+
+            Element link = body.select("p").get(i);
+            if (!link.hasText())
+                break;
+            else
+                classes.add(link.text());
+        }
+        for (int i = 0; i <body.select("ol").size() ; i++) {
+            Element olLink=body.select("ol").get(i);
+            for (int j = 0; j <olLink.select("li").size() ; j++) {
+                Element link = olLink.select("li").get(j);
+                if (!link.hasText())
+                    break;
+                else
+                    classes.add(link.text());
+            }
+
+        }
+        StringBuilder builder=new StringBuilder();
+        for (String aClass : classes) {
+            builder.append(aClass);
+            builder.append(' ');
+        }
+        return builder.toString();
+
+    }
+
 }
